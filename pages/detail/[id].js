@@ -6,15 +6,18 @@ const Detail = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  const [data, setData] = useState();
+  const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
+
+  console.log(typeof id);
 
   const getData = async () => {
     try {
       setLoading(true);
       let dataFromAPI = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${id}`);
       let dataToJSON = await dataFromAPI.json();
-      setData(await dataToJSON.drinks[0]);
+      let dataArray = await dataToJSON.drinks;
+      setData(await dataArray[0]);
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -23,7 +26,7 @@ const Detail = () => {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [id]);
 
   if (loading) return <p>Masih Loading Gan! :)</p>;
 
@@ -36,7 +39,7 @@ const Detail = () => {
       </Head>
 
       <main>
-        {data.strDrink}
+        {data?.strDrink}
       </main>
     </div>
   );

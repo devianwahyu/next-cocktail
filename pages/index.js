@@ -13,7 +13,7 @@ export default function Home() {
       setLoading(true);
       let dataFromAPI = await fetch('https://www.thecocktaildb.com/api/json/v1/1/search.php?f=a');
       let dataToJSON = await dataFromAPI.json();
-      setData(dataToJSON.drinks);
+      setData(await dataToJSON.drinks);
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -23,6 +23,10 @@ export default function Home() {
   useEffect(() => {
     getData();
   }, []);
+
+  useEffect(() => {
+    console.log('home', data);
+  }, [data]);
 
   const handleClick = (id) => {
     router.push(`/detail/${id}`);
@@ -40,7 +44,7 @@ export default function Home() {
 
       <main>
         <div>
-          {data.map((item, index) => <p key={index} onClick={() => handleClick(item.idDrink)}>{item.strDrink} {item.idDrink}</p>)}
+          {data?.map((item, index) => <p className='text-3xl font-bold underline' key={index} onClick={() => handleClick(item.idDrink)}>{item.strDrink} {item.idDrink}</p>)}
         </div>
       </main>
     </div>
