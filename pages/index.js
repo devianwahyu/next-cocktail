@@ -2,6 +2,12 @@ import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
+import Navbar from '../components/Navbar';
+import Banner from '../components/Banner';
+import Card from '../components/Card';
+import Loading from '../components/Loading';
+import Footer from '../components/Footer';
+
 export default function Home() {
   const router = useRouter();
 
@@ -32,7 +38,7 @@ export default function Home() {
     router.push(`/detail/${id}`);
   };
 
-  if (loading) return <p>Masih Loading Gan! :)</p>;
+  if (loading) return <Loading />;
 
   return (
     <div>
@@ -42,11 +48,20 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <nav>
+        <Navbar />
+      </nav>
+
       <main>
-        <div>
-          {data?.map((item, index) => <p className='text-3xl font-bold underline' key={index} onClick={() => handleClick(item.idDrink)}>{item.strDrink} {item.idDrink}</p>)}
+        <Banner title={'Our Menu'} />
+        <div className='flex flex-row flex-wrap gap-5 justify-center my-10 px-20'>
+          {data?.map((item, index) => <Card key={index} id={item.idDrink} name={item.strDrink} thumb={item.strDrinkThumb} />)}
         </div>
       </main>
+
+      <footer>
+        <Footer />
+      </footer>
     </div>
   );
 }
