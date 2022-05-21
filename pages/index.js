@@ -10,14 +10,15 @@ import Footer from '../components/Footer';
 
 export default function Home() {
   const router = useRouter();
+  const b = router.query.b || 'a';
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const getData = async () => {
+  const getData = async (b) => {
     try {
       setLoading(true);
-      let dataFromAPI = await fetch('https://www.thecocktaildb.com/api/json/v1/1/search.php?f=a');
+      let dataFromAPI = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?f=${b}`);
       let dataToJSON = await dataFromAPI.json();
       setData(await dataToJSON.drinks);
       setLoading(false);
@@ -27,15 +28,35 @@ export default function Home() {
   };
 
   useEffect(() => {
-    getData();
-  }, []);
+    getData(b);
+  }, [b]);
 
-  useEffect(() => {
-    console.log('home', data);
-  }, [data]);
+  const handleIndexClick = (b) => {
+    router.push(`/?b=${b}`);
+  };
 
-  const handleClick = (id) => {
-    router.push(`/detail/${id}`);
+  const indexFilter = () => {
+    const component = [];
+    const index = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+    for (let i of index) {
+      if (i === 'Z') {
+        component.push(
+          <div key={i} className='flex'>
+            <p className='cursor-pointer text-lg font-bold' onClick={() => handleIndexClick(i.toLowerCase())}>{i}</p>
+          </div>
+        );
+      } else {
+        component.push(
+          <div key={i} className='flex'>
+            <p className='cursor-pointer text-lg font-bold' onClick={() => handleIndexClick(i.toLowerCase())}>{i}</p>
+            <span className='mx-2'>/</span>
+          </div>
+        );
+      }
+    }
+
+    return component;
   };
 
   if (loading) return <Loading />;
@@ -54,8 +75,14 @@ export default function Home() {
 
       <main>
         <Banner title={'Our Menu'} />
-        <div className='flex flex-row flex-wrap gap-5 justify-center my-10 px-20'>
+        <div className='flex flex-row flex-wrap gap-5 justify-center my-10 px-36'>
           {data?.map((item, index) => <Card key={index} id={item.idDrink} name={item.strDrink} thumb={item.strDrinkThumb} />)}
+        </div>
+        <div className='flex flex-col items-center my-5'>
+          <p>Browse Drinks</p>
+          <div className='flex flex-row'>
+            {indexFilter()}
+          </div>
         </div>
       </main>
 
