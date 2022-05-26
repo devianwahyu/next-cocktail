@@ -10,8 +10,8 @@ const Card = ({ id, name, thumb }) => {
   };
 
   return (
-    <div className='cursor-pointer' onClick={() => handleClick(id)}>
-      <Image loader={() => thumb} src={thumb} alt={name} width={250} height={250} />
+    <div className='cursor-pointer w-64 flex flex-col items-center' onClick={() => handleClick(id)}>
+      <Image loader={() => thumb} src={thumb} alt={name} width={256} height={256} />
       <p className='text-lg font-bold text-center'>{name}</p>
     </div>
   );

@@ -9,16 +9,26 @@ import Loading from '../components/Loading';
 import Footer from '../components/Footer';
 
 export default function Home() {
+  const apiUrl = 'https://www.thecocktaildb.com/api/json/v1/1';
   const router = useRouter();
   const b = router.query.b || 'a';
+  const i = router.query.i;
 
   const [data, setData] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const getData = async (b) => {
+  const getData = async (filter) => {
     try {
       setLoading(true);
-      let dataFromAPI = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?f=${b}`);
+      let dataFromAPI = null;
+
+      if (filter.length === 1) {
+        dataFromAPI = await fetch(`${apiUrl}/search.php?f=${filter}`);
+      } else {
+        dataFromAPI = await fetch(`${apiUrl}/filter.php?i=${filter}`);
+      }
+
       let dataToJSON = await dataFromAPI.json();
       setData(await dataToJSON.drinks);
       setLoading(false);
@@ -28,8 +38,25 @@ export default function Home() {
   };
 
   useEffect(() => {
-    getData(b);
-  }, [b]);
+    if (i) getData(i);
+    else getData(b);
+  }, [b, i]);
+
+  const getIngredients = async () => {
+    try {
+      setLoading(true);
+      let dataFromAPI = await fetch(`${apiUrl}/list.php?i=list`);
+      let dataToJSON = await dataFromAPI.json();
+      setIngredients(await dataToJSON.drinks);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getIngredients();
+  }, []);
 
   const handleIndexClick = (b) => {
     router.push(`/?b=${b}`);
@@ -59,6 +86,19 @@ export default function Home() {
     return component;
   };
 
+  const handleIngredientClick = (i) => {
+    router.push(`/?i=${i}`);
+  };
+
+  const ingredientFilter = () => {
+    const tenIngredients = ingredients.slice(0, 25);
+    return tenIngredients.map((ingredient, index) => (
+      <div key={index} className='bg-rose-900 p-1 rounded flex cursor-pointer' onClick={() => handleIngredientClick(ingredient.strIngredient1)}>
+        <p className='text-white'>{ingredient.strIngredient1}</p>
+      </div>
+    ));
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -75,11 +115,17 @@ export default function Home() {
 
       <main>
         <Banner title={'Our Menu'} />
+        <div className='mt-8 px-32'>
+          <h3 className='font-bold text-xl text-center'>Filter by ingredient</h3>
+          <div className='mt-2 flex flex-row flex-wrap justify-center gap-2 px-16'>
+            {ingredientFilter()}
+          </div>
+        </div>
         <div className='flex flex-row flex-wrap gap-5 justify-center my-10 px-36'>
           {data?.map((item, index) => <Card key={index} id={item.idDrink} name={item.strDrink} thumb={item.strDrinkThumb} />)}
         </div>
-        <div className='flex flex-col items-center my-5'>
-          <p>Browse Drinks</p>
+        <div className='flex flex-col items-center my-8'>
+          <p className='text-xl mb-2'>Browse Drinks</p>
           <div className='flex flex-row'>
             {indexFilter()}
           </div>
